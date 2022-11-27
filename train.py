@@ -28,15 +28,15 @@ import time
 model_id = "1"
 
 num_epochs = 1000
-batch_size = 3
+batch_size = 32
 learning_rate = 0.0001
 
-network = DeepLabV3(model_id, project_dir="/root/deeplabv3").cuda()
+network = DeepLabV3(model_id, project_dir="./").cuda()
 
-train_dataset = DatasetTrain(cityscapes_data_path="./data/cityscapes",
-                             cityscapes_meta_path="./data/cityscapes/meta")
-val_dataset = DatasetVal(cityscapes_data_path="./data/cityscapes",
-                         cityscapes_meta_path="./data/cityscapes/meta")
+train_dataset = DatasetTrain(data_path="./data/train/images/",
+                             mask_path="./data/train/masks/")
+val_dataset = DatasetVal(data_path="./data/val/images/",
+                         mask_path="./data/val/masks/")
 
 num_train_batches = int(len(train_dataset)/batch_size)
 num_val_batches = int(len(val_dataset)/batch_size)
@@ -60,7 +60,7 @@ optimizer = torch.optim.Adam(params, lr=learning_rate)
 
 # loss function
 # loss_fn = nn.CrossEntropyLoss(weight=class_weights)
-loss_fn = nn.CrossEntropyLoss(weight=class_weights)
+loss_fn = nn.CrossEntropyLoss()
 
 epoch_losses_train = []
 epoch_losses_val = []
@@ -84,6 +84,8 @@ for epoch in range(num_epochs):
         outputs = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
 
         # compute the loss:
+        # print(outputs.shape)
+        # print(label_imgs.shape)
         loss = loss_fn(outputs, label_imgs)
         loss_value = loss.data.cpu().numpy()
         batch_losses.append(loss_value)
@@ -116,7 +118,7 @@ for epoch in range(num_epochs):
     ############################################################################
     network.eval() # (set in evaluation mode, this affects BatchNorm and dropout)
     batch_losses = []
-    for step, (imgs, label_imgs, img_ids) in enumerate(val_loader):
+    for step, (imgs, label_imgs) in enumerate(val_loader):
         with torch.no_grad(): # (corresponds to setting volatile=True in all variables, this is done during inference to reduce memory consumption)
             imgs = Variable(imgs).cuda() # (shape: (batch_size, 3, img_h, img_w))
             label_imgs = Variable(label_imgs.type(torch.LongTensor)).cuda() # (shape: (batch_size, img_h, img_w))

@@ -6,14 +6,14 @@ import torch.nn.functional as F
 
 import os
 
-from resnet import ResNet18_OS16, ResNet34_OS16, ResNet50_OS16, ResNet101_OS16, ResNet152_OS16, ResNet18_OS8, ResNet34_OS8
-from aspp import ASPP, ASPP_Bottleneck
+from model.resnet import ResNet18_OS16, ResNet34_OS16, ResNet50_OS16, ResNet101_OS16, ResNet152_OS16, ResNet18_OS8, ResNet34_OS8
+from model.aspp import ASPP, ASPP_Bottleneck
 
 class DeepLabV3(nn.Module):
     def __init__(self, model_id, project_dir):
         super(DeepLabV3, self).__init__()
 
-        self.num_classes = 20
+        self.num_classes = 6
 
         self.model_id = model_id
         self.project_dir = project_dir
@@ -21,6 +21,7 @@ class DeepLabV3(nn.Module):
 
         self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
         self.aspp = ASPP(num_classes=self.num_classes) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+
 
     def forward(self, x):
         # (x has shape (batch_size, 3, h, w))
@@ -45,3 +46,6 @@ class DeepLabV3(nn.Module):
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
             os.makedirs(self.checkpoints_dir)
+
+            
+            
