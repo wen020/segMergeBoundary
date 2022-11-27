@@ -4,11 +4,9 @@ import sys
 
 from datasets import DatasetTrain, DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
-sys.path.append("/root/deeplabv3/model")
-from deeplabv3 import DeepLabV3
+from model.deeplabv3 import DeepLabV3
 
-sys.path.append("/root/deeplabv3/utils")
-from utils import add_weight_decay
+from utils.utils import add_weight_decay
 
 import torch
 import torch.utils.data
@@ -35,10 +33,10 @@ learning_rate = 0.0001
 
 network = DeepLabV3(model_id, project_dir="/root/deeplabv3").cuda()
 
-train_dataset = DatasetTrain(cityscapes_data_path="/root/deeplabv3/data/cityscapes",
-                             cityscapes_meta_path="/root/deeplabv3/data/cityscapes/meta")
-val_dataset = DatasetVal(cityscapes_data_path="/root/deeplabv3/data/cityscapes",
-                         cityscapes_meta_path="/root/deeplabv3/data/cityscapes/meta")
+train_dataset = DatasetTrain(cityscapes_data_path="./data/cityscapes",
+                             cityscapes_meta_path="./data/cityscapes/meta")
+val_dataset = DatasetVal(cityscapes_data_path="./data/cityscapes",
+                         cityscapes_meta_path="./data/cityscapes/meta")
 
 num_train_batches = int(len(train_dataset)/batch_size)
 num_val_batches = int(len(val_dataset)/batch_size)
@@ -55,12 +53,13 @@ val_loader = torch.utils.data.DataLoader(dataset=val_dataset,
 params = add_weight_decay(network, l2_value=0.0001)
 optimizer = torch.optim.Adam(params, lr=learning_rate)
 
-with open("/root/deeplabv3/data/cityscapes/meta/class_weights.pkl", "rb") as file: # (needed for python3)
-    class_weights = np.array(pickle.load(file))
-class_weights = torch.from_numpy(class_weights)
-class_weights = Variable(class_weights.type(torch.FloatTensor)).cuda()
+# with open("/root/deeplabv3/data/cityscapes/meta/class_weights.pkl", "rb") as file: # (needed for python3)
+#     class_weights = np.array(pickle.load(file))
+# class_weights = torch.from_numpy(class_weights)
+# class_weights = Variable(class_weights.type(torch.FloatTensor)).cuda()
 
 # loss function
+# loss_fn = nn.CrossEntropyLoss(weight=class_weights)
 loss_fn = nn.CrossEntropyLoss(weight=class_weights)
 
 epoch_losses_train = []
