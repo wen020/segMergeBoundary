@@ -72,10 +72,10 @@ class ASPP_Bottleneck(nn.Module):
         self.conv_1x1_2 = nn.Conv2d(4*512, 256, kernel_size=1)
         self.bn_conv_1x1_2 = nn.BatchNorm2d(256)
 
-        self.conv_1x1_3 = nn.Conv2d(1280, 256, kernel_size=1) # (1280 = 5*256)
-        self.bn_conv_1x1_3 = nn.BatchNorm2d(256)
+        self.conv_1x1_3 = nn.Conv2d(1280, num_classes, kernel_size=1) # (1280 = 5*256)
+        self.bn_conv_1x1_3 = nn.BatchNorm2d(num_classes)
 
-        self.conv_1x1_4 = nn.Conv2d(256, num_classes, kernel_size=1)
+        self.conv_1x1_4 = nn.Conv2d(num_classes, num_classes, kernel_size=1)
 
     def forward(self, feature_map):
         # (feature_map has shape (batch_size, 4*512, h/16, w/16))
