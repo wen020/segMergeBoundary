@@ -119,7 +119,7 @@ for epoch in range(num_epochs):
     ############################################################################
     network.eval() # (set in evaluation mode, this affects BatchNorm and dropout)
     batch_losses = []
-    for step, (imgs, label_imgs) in enumerate(val_loader):
+    for step, (imgs, label_imgs, _) in enumerate(val_loader):
         with torch.no_grad(): # (corresponds to setting volatile=True in all variables, this is done during inference to reduce memory consumption)
             imgs = Variable(imgs).cuda() # (shape: (batch_size, 3, img_h, img_w))
             label_imgs = Variable(label_imgs.type(torch.LongTensor)).cuda() # (shape: (batch_size, img_h, img_w))

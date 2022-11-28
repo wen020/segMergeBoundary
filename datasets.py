@@ -165,6 +165,7 @@ class DatasetVal(torch.utils.data.Dataset):
 
         img_path = example["img_path"]
         img = cv2.imread(img_path, -1) # (shape: (1024, 2048, 3))
+        file_name = img_path.split("/")[-1]
         # resize img without interpolation (want the image to still match
         # label_img, which we resize below):
         # img = cv2.resize(img, (self.new_img_w, self.new_img_h),
@@ -196,7 +197,7 @@ class DatasetVal(torch.utils.data.Dataset):
         img = torch.from_numpy(img) # (shape: (3, 512, 1024))
         label_img = torch.from_numpy(label_img) # (shape: (512, 1024))
 
-        return (img, label_img)
+        return (img, label_img, file_name)
 
     def __len__(self):
         return self.num_examples
