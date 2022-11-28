@@ -74,7 +74,7 @@ for step, (imgs, label_imgs, img_names) in enumerate(val_loader):
         pred_label_imgs = np.argmax(outputs, axis=1) # (shape: (batch_size, img_h, img_w))
         pred_label_imgs = pred_label_imgs.astype(np.uint8)
         for i in range(pred_label_imgs.shape[0]):
-            metrics.add_batch(label_imgs[i], pred_label_imgs[i])
+            metrics.add_batch(label_imgs[i].cpu().numpy(), pred_label_imgs[i])
         for i in range(pred_label_imgs.shape[0]):
             if i == 0:
                 pred_label_img = pred_label_imgs[i] # (shape: (img_h, img_w))
