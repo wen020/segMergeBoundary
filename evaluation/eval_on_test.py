@@ -5,7 +5,7 @@ import os
 
 sys.path.append(os.getcwd())
 print(os.getcwd())
-from datasets import DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
+from datasets import DatasetTest # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
 # sys.path.append("/root/deeplabv3/model")
 from model.deeplabv3 import DeepLabV3
@@ -34,7 +34,7 @@ CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
 network = DeepLabV3("eval_test", project_dir="./").cuda()
 network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
 
-val_dataset = DatasetVal(data_path="./data/val/images/",
+val_dataset = DatasetTest(data_path="./data/val/images/",
                          mask_path="./data/val/masks/")
 
 num_val_batches = int(len(val_dataset)/batch_size)
