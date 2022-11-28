@@ -202,6 +202,53 @@ class DatasetVal(torch.utils.data.Dataset):
     def __len__(self):
         return self.num_examples
 
+    
+class DatasetTest(torch.utils.data.Dataset):
+    def __init__(self, data_path, mask_path):
+        self.img_dir = data_path
+        self.label_dir = mask_path
+
+        self.examples = []
+
+        test_img_dir_path = self.img_dir
+
+        file_names = os.listdir(test_img_dir_path)
+        for file_name in file_names:
+            img_path = test_img_dir_path + file_name
+            label_img_path = self.label_dir + file_name.split(".")[0]+".png"
+            example = {}
+            example["img_path"] = img_path
+            example["label_img_path"] = label_img_path
+            self.examples.append(example)
+
+        self.num_examples = len(self.examples)
+
+    def __getitem__(self, index):
+        example = self.examples[index]
+
+        img_path = example["img_path"]
+        img = cv2.imread(img_path, -1) # (shape: (1024, 2048, 3))
+        file_name = img_path.split("/")[-1]
+
+        label_img_path = example["label_img_path"]
+        label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
+
+        # normalize the img (with the mean and std for the pretrained ResNet):
+        img = img/255.0
+        img = img - np.array([0.485, 0.456, 0.406])
+        img = img/np.array([0.229, 0.224, 0.225]) # (shape: (512, 1024, 3))
+        img = np.transpose(img, (2, 0, 1)) # (shape: (3, 512, 1024))
+        img = img.astype(np.float32)
+
+        # convert numpy -> torch:
+        img = torch.from_numpy(img) # (shape: (3, 512, 1024))
+        label_img = torch.from_numpy(label_img) # (shape: (512, 1024))
+
+        return (img, label_img, file_name)
+
+    def __len__(self):
+        return self.num_examples
+
 class DatasetSeq(torch.utils.data.Dataset):
     def __init__(self, cityscapes_data_path, cityscapes_meta_path, sequence):
         self.img_dir = cityscapes_data_path + "/leftImg8bit/demoVideo/stuttgart_" + sequence + "/"
