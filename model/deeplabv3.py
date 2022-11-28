@@ -27,8 +27,9 @@ class DeepLabV3(nn.Module):
         self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
         self.aspp = ASPP(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
 
-        self.decoder2 = DecoderBlock(512, 256)
-        self.decoder1 = DecoderBlock(256, self.num_classes)
+        self.decoder3 = DecoderBlock(512, 256)
+        self.decoder2 = DecoderBlock(256, 128)
+        self.decoder1 = DecoderBlock(128, self.num_classes)
 
 
     def forward(self, x):
@@ -42,6 +43,7 @@ class DeepLabV3(nn.Module):
         output = self.aspp(feature_map) # (shape: (batch_size, num_classes, h/16, w/16))
 
         # output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
+        output = self.decoder3(output)
         output = self.decoder2(output)
         output = self.decoder1(output)
 
