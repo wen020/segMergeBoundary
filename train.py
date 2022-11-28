@@ -64,6 +64,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 epoch_losses_train = []
 epoch_losses_val = []
+min_loss = 100
 for epoch in range(num_epochs):
     print ("###########################")
     print ("######## NEW EPOCH ########")
@@ -145,5 +146,7 @@ for epoch in range(num_epochs):
     plt.close(1)
 
     # save the model weights to disk:
-    checkpoint_path = network.checkpoints_dir + "/model_" + model_id +"_epoch_" + str(epoch+1) + ".pth"
-    torch.save(network.state_dict(), checkpoint_path)
+    if epoch_loss < min_loss:
+        min_loss = epoch_loss
+        checkpoint_path = network.checkpoints_dir + "/model_" + model_id +"_epoch_" + str(epoch+1) + ".pth"
+        torch.save(network.state_dict(), checkpoint_path)

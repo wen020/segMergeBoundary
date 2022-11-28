@@ -6,6 +6,11 @@ import torch.nn.functional as F
 
 import os
 
+from functools import partial
+
+
+nonlinearity = partial(F.relu, inplace=True)
+
 from model.resnet import ResNet18_OS16, ResNet34_OS16, ResNet50_OS16, ResNet101_OS16, ResNet152_OS16, ResNet18_OS8, ResNet34_OS8
 from model.aspp import ASPP, ASPP_Bottleneck
 
@@ -20,7 +25,10 @@ class DeepLabV3(nn.Module):
         self.create_model_dirs()
 
         self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
-        self.aspp = ASPP(num_classes=self.num_classes) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+        self.aspp = ASPP(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+
+        self.decoder2 = DecoderBlock(512, 256)
+        self.decoder1 = DecoderBlock(256, self.num_classes)
 
 
     def forward(self, x):
@@ -33,7 +41,9 @@ class DeepLabV3(nn.Module):
 
         output = self.aspp(feature_map) # (shape: (batch_size, num_classes, h/16, w/16))
 
-        output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
+        # output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
+        output = self.decoder2(output)
+        output = self.decoder1(output)
 
         return output
 
@@ -48,4 +58,30 @@ class DeepLabV3(nn.Module):
             os.makedirs(self.checkpoints_dir)
 
             
-            
+class DecoderBlock(nn.Module):
+    def __init__(self, in_channels, n_filters):
+        super(DecoderBlock, self).__init__()
+
+        self.conv1 = nn.Conv2d(in_channels, in_channels // 4, 1)
+        self.norm1 = nn.BatchNorm2d(in_channels // 4)
+        self.relu1 = nonlinearity
+
+        self.deconv2 = nn.ConvTranspose2d(in_channels // 4, in_channels // 4, 3, stride=2, padding=1, output_padding=1)
+        self.norm2 = nn.BatchNorm2d(in_channels // 4)
+        self.relu2 = nonlinearity
+
+        self.conv3 = nn.Conv2d(in_channels // 4, n_filters, 1)
+        self.norm3 = nn.BatchNorm2d(n_filters)
+        self.relu3 = nonlinearity
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.norm1(x)
+        x = self.relu1(x)
+        x = self.deconv2(x)
+        x = self.norm2(x)
+        x = self.relu2(x)
+        x = self.conv3(x)
+        x = self.norm3(x)
+        x = self.relu3(x)
+        return x
