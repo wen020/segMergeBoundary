@@ -46,6 +46,7 @@ class DeepLabV3(nn.Module):
         output = self.aspp(feature_map) # (shape: (batch_size, num_classes, h/16, w/16))
 
         # output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
+        output = self.decoder4(output)
         output = self.decoder3(output)
         output = self.decoder2(output)
         output = self.decoder1(output)
