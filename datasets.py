@@ -232,7 +232,7 @@ class DatasetTest(torch.utils.data.Dataset):
 
         label_img_path = example["label_img_path"]
         label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
-
+        
         # normalize the img (with the mean and std for the pretrained ResNet):
         img = img/255.0
         img = img - np.array([0.485, 0.456, 0.406])

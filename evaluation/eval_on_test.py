@@ -34,8 +34,8 @@ CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
 network = DeepLabV3("eval_test", project_dir="./").cuda()
 network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
 
-val_dataset = DatasetTest(data_path="./data/val/images/",
-                         mask_path="./data/val/masks/")
+val_dataset = DatasetTest(data_path="./data/test/images/",
+                         mask_path="./data/test/masks/")
 
 num_val_batches = int(len(val_dataset)/batch_size)
 print ("num_val_batches:", num_val_batches)
