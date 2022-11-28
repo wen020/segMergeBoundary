@@ -1,15 +1,17 @@
 # camera-ready
 
 import sys
+import os
 
-# sys.path.append("/root/deeplabv3")
+sys.path.append(os.getcwd())
+print(os.getcwd())
 from datasets import DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
 # sys.path.append("/root/deeplabv3/model")
-from deeplabv3 import DeepLabV3
+from model.deeplabv3 import DeepLabV3
 
 # sys.path.append("/root/deeplabv3/utils")
-from utils import label_img_to_color
+from utils.utils import label_img_to_color
 
 import torch
 import torch.utils.data
@@ -28,7 +30,7 @@ import cv2
 batch_size = 2
 
 network = DeepLabV3("eval_val", project_dir="./").cuda()
-network.load_state_dict(torch.load("/root/deeplabv3/pretrained_models/model_13_2_2_2_epoch_580.pth"))
+network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
 
 val_dataset = DatasetVal(data_path="./data/val/images/",
                          mask_path="./data/val/masks/")
