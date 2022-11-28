@@ -27,8 +27,9 @@ class DeepLabV3(nn.Module):
         # self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
         # self.aspp = ASPP(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
         self.resnet = ResNet50_OS16() # NOTE! specify the type of ResNet here
-        self.aspp = ASPP_Bottleneck(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+        self.aspp = ASPP_Bottleneck(num_classes=1024) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
 
+        self.decoder4 = DecoderBlock(1024, 512)
         self.decoder3 = DecoderBlock(512, 256)
         self.decoder2 = DecoderBlock(256, 128)
         self.decoder1 = DecoderBlock(128, self.num_classes)
