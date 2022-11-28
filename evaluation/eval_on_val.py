@@ -11,7 +11,7 @@ from datasets import DatasetVal # (this needs to be imported before torch, becau
 from model.deeplabv3 import DeepLabV3
 
 # sys.path.append("/root/deeplabv3/utils")
-from utils.utils import label_img_to_color
+from utils.utils import label_img_to_color, pv2rgb
 
 import torch
 import torch.utils.data
@@ -85,7 +85,8 @@ for step, (imgs, label_imgs, img_names) in enumerate(val_loader):
                 img = img*255.0
                 img = img.astype(np.uint8)
 
-                pred_label_img_color = label_img_to_color(pred_label_img)
+                # pred_label_img_color = label_img_to_color(pred_label_img)
+                pred_label_img_color = pv2rgb(pred_label_img)
                 overlayed_img = 0.35*img + 0.65*pred_label_img_color
                 overlayed_img = overlayed_img.astype(np.uint8)
 
