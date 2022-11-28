@@ -24,8 +24,10 @@ class DeepLabV3(nn.Module):
         self.project_dir = project_dir
         self.create_model_dirs()
 
-        self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
-        self.aspp = ASPP(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+        # self.resnet = ResNet18_OS8() # NOTE! specify the type of ResNet here
+        # self.aspp = ASPP(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
+        self.resnet = ResNet50_OS16() # NOTE! specify the type of ResNet here
+        self.aspp = ASPP_Bottleneck(num_classes=512) # NOTE! if you use ResNet50-152, set self.aspp = ASPP_Bottleneck(num_classes=self.num_classes) instead
 
         self.decoder3 = DecoderBlock(512, 256)
         self.decoder2 = DecoderBlock(256, 128)
