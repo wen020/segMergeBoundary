@@ -5,8 +5,9 @@ import sys
 from datasets import DatasetTrain, DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
 from model.deeplabv3 import DeepLabV3
+from model.unet_model import UNet
 
-from utils.utils import add_weight_decay
+from utils.utils import add_weight_decay, num_classes
 
 import torch
 import torch.utils.data
@@ -31,7 +32,10 @@ num_epochs = 1000
 batch_size = 32
 learning_rate = 0.0001
 
-network = DeepLabV3(model_id, project_dir="./").cuda()
+mode = "DeepLabV3"
+network = DeepLabV3(mode+model_id, project_dir="./").cuda()
+if mode == "Unet":
+    network = UNet(mode+model_id, project_dir="./", n_channels=3, n_classes=num_classes).cuda()
 
 train_dataset = DatasetTrain(data_path="./data/train/images/",
                              mask_path="./data/train/masks/")
