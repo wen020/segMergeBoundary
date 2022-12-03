@@ -1,6 +1,7 @@
 # camera-ready
 
 import sys
+import time
 
 from datasets import DatasetTrain, DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
@@ -74,6 +75,7 @@ for epoch in range(num_epochs):
     print ("######## NEW EPOCH ########")
     print ("###########################")
     print ("epoch: %d/%d" % (epoch+1, num_epochs))
+    start = time.time()
 
     ############################################################################
     # train:
@@ -140,6 +142,8 @@ for epoch in range(num_epochs):
     with open("%s/epoch_losses_val.pkl" % network.model_dir, "wb") as file:
         pickle.dump(epoch_losses_val, file)
     print ("val loss: %g" % epoch_loss)
+    cost = time.time()-start
+    print ("epoch cost:" , cost, "time left:", (num_epochs-epoch)*cost)
     plt.figure(1)
     plt.plot(epoch_losses_val, "k^")
     plt.plot(epoch_losses_val, "k")
@@ -151,6 +155,7 @@ for epoch in range(num_epochs):
 
     # save the model weights to disk:
     if epoch_loss < min_loss:
+        print("save model epoch_loss:", epoch_loss)
         min_loss = epoch_loss
         checkpoint_path = network.checkpoints_dir + "/model_" + model_id +"_epoch_" + str(epoch+1) + ".pth"
         torch.save(network.state_dict(), checkpoint_path)
