@@ -21,6 +21,9 @@ class UNet(nn.Module):
         self.up3 = Up(256, 128 // factor, bilinear)
         self.up4 = Up(128, 64, bilinear)
         self.outc = OutConv(64, n_classes)
+        
+        self.model_id = model_id
+        self.project_dir = project_dir
         self.create_model_dirs()
 
     def forward(self, x):
