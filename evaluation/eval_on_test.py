@@ -9,6 +9,7 @@ from datasets import DatasetTest # (this needs to be imported before torch, beca
 
 # sys.path.append("/root/deeplabv3/model")
 from model.deeplabv3 import DeepLabV3
+from model.unet_model import UNet
 
 # sys.path.append("/root/deeplabv3/utils")
 from utils.utils import label_img_to_color, pv2rgb
@@ -31,8 +32,13 @@ import cv2
 batch_size = 1
 num_classes = 6
 CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
-network = DeepLabV3("eval_test", project_dir="./").cuda()
-network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
+mode = "Unet"
+if mode == "DeepLabV3":
+    network = DeepLabV3(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
+if mode == "Unet":
+    network = UNet(mode+"_eval_test", project_dir="./", n_channels=3, n_classes=num_classes).cuda()
+    network.load_state_dict(torch.load("./training_logs/model_Unet1/checkpoints/model_1_epoch_24.pth"))
 
 val_dataset = DatasetTest(data_path="./data/test/images/",
                          mask_path="./data/test/masks/")
