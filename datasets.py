@@ -233,12 +233,12 @@ class DatasetTest(torch.utils.data.Dataset):
         label_img_path = example["label_img_path"]
         label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
         
-        if max(img.shape)>1024:
-            scale = max(img.shape)/1024
-            img = cv2.resize(img, (int(img.shape[0]/scale), int(img.shape[1]/scale)),
-                     interpolation=cv2.INTER_NEAREST) # (shape: (512, 1024, 3))
-            label_img = cv2.resize(label_img, (int(label_img.shape[0]/scale), int(label_img.shape[1]/scale)),
-                     interpolation=cv2.INTER_NEAREST) # (shape: (512, 1024, 3))
+        # if max(img.shape)>1024:
+        #     scale = max(img.shape)/1024
+        #     img = cv2.resize(img, (int(img.shape[0]/scale), int(img.shape[1]/scale)),
+        #              interpolation=cv2.INTER_NEAREST) # (shape: (512, 1024, 3))
+        #     label_img = cv2.resize(label_img, (int(label_img.shape[0]/scale), int(label_img.shape[1]/scale)),
+        #              interpolation=cv2.INTER_NEAREST) # (shape: (512, 1024, 3))
         
         # normalize the img (with the mean and std for the pretrained ResNet):
         img = img/255.0

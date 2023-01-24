@@ -30,7 +30,7 @@ import cv2
 batch_size = 2
 
 network = DeepLabV3("eval_val", project_dir="./").cuda()
-network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
+network.load_state_dict(torch.load("./training_logs/model_DeepLabV3_1/checkpoints/model__1_epoch_956.pth"))
 
 val_dataset = DatasetVal(data_path="./data/val/images/",
                          mask_path="./data/val/masks/")

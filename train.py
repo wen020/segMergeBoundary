@@ -6,6 +6,7 @@ import time
 from datasets import DatasetTrain, DatasetVal # (this needs to be imported before torch, because cv2 needs to be imported before torch for some reason)
 
 from model.deeplabv3 import DeepLabV3
+from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
 from model.unet_model import UNet
 
 from utils.utils import add_weight_decay, num_classes
@@ -59,8 +60,11 @@ if __name__ == "__main__":
         device = "cuda:0"
         network = UNet(mode+model_id, project_dir="./", n_channels=3, n_classes=num_classes).to(device)
     elif mode == "DeepLabV3":
-        device = "cuda:1"
+        device = "cuda:0"
         network = DeepLabV3(mode+model_id, project_dir="./").to(device)
+    elif mode == "DeepLabV3MutilDecoder":
+        device = "cuda:0"
+        network = DeepLabV3MutilDecoder(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
         exit()

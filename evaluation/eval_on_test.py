@@ -9,6 +9,7 @@ from datasets import DatasetTest # (this needs to be imported before torch, beca
 
 # sys.path.append("/root/deeplabv3/model")
 from model.deeplabv3 import DeepLabV3
+from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
 from model.unet_model import UNet
 
 # sys.path.append("/root/deeplabv3/utils")
@@ -35,10 +36,13 @@ CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
 mode = "Unet"
 if mode == "DeepLabV3":
     network = DeepLabV3(mode+"_eval_test", project_dir="./").cuda()
-    network.load_state_dict(torch.load("./training_logs/model_2/checkpoints/model_2_epoch_841.pth"))
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3_1/checkpoints/model__1_epoch_956.pth"))
 if mode == "Unet":
     network = UNet(mode+"_eval_test", project_dir="./", n_channels=3, n_classes=num_classes).cuda()
-    network.load_state_dict(torch.load("./training_logs/model_Unet1/checkpoints/model_1_epoch_24.pth"))
+    network.load_state_dict(torch.load("./training_logs/model_Unet_1/checkpoints/model__1_epoch_403.pth"))
+if mode == "DeepLabV3MutilDecoder":
+    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3MutilDecoder_1/checkpoints/model__1_epoch_956.pth"))
 
 val_dataset = DatasetTest(data_path="./data/test/images/",
                          mask_path="./data/test/masks/")
