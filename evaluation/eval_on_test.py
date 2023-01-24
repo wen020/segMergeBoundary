@@ -33,10 +33,10 @@ import cv2
 batch_size = 1
 num_classes = 6
 CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
-mode = "Unet"
+mode = "DeepLabV3MutilDecoder"
 if mode == "DeepLabV3":
     network = DeepLabV3(mode+"_eval_test", project_dir="./").cuda()
-    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3_1/checkpoints/model__1_epoch_956.pth"))
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3_1/checkpoints/model__1_epoch_507.pth"))
 if mode == "Unet":
     network = UNet(mode+"_eval_test", project_dir="./", n_channels=3, n_classes=num_classes).cuda()
     network.load_state_dict(torch.load("./training_logs/model_Unet_1/checkpoints/model__1_epoch_403.pth"))
