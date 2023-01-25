@@ -7,6 +7,7 @@ from datasets import DatasetTrain, DatasetVal # (this needs to be imported befor
 
 from model.deeplabv3 import DeepLabV3
 from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
+from model.deeplabv3Boundary import DeepLabV3Boundary
 from model.unet_model import UNet
 
 from utils.utils import add_weight_decay, num_classes
@@ -36,7 +37,7 @@ if __name__ == "__main__":
         "--mode",
         type=str,
         help="model change",
-        default="DeepLabV3")
+        default="DeepLabV3Boundary")
     
     parser.add_argument(
         "--batch_size",
@@ -65,14 +66,19 @@ if __name__ == "__main__":
     elif mode == "DeepLabV3MutilDecoder":
         device = "cuda:0"
         network = DeepLabV3MutilDecoder(mode+model_id, project_dir="./").to(device)
+    elif mode == "DeepLabV3Boundary":
+        device = "cuda:0"
+        network = DeepLabV3Boundary(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
         exit()
 
     train_dataset = DatasetTrain(data_path="./data/train/images/",
-                                mask_path="./data/train/masks/")
+                                mask_path="./data/train/masks/",
+                                boundary_path="./data/train/boundarys/")
     val_dataset = DatasetVal(data_path="./data/val/images/",
-                            mask_path="./data/val/masks/")
+                            mask_path="./data/val/masks/",
+                            boundary_path="./data/val/boundarys/")
 
     num_train_batches = int(len(train_dataset)/batch_size)
     num_val_batches = int(len(val_dataset)/batch_size)
@@ -113,18 +119,24 @@ if __name__ == "__main__":
         ############################################################################
         network.train() # (set in training mode, this affects BatchNorm and dropout)
         batch_losses = []
-        for step, (imgs, label_imgs) in enumerate(train_loader):
+        for step, (imgs, label_imgs, label_boundarys) in enumerate(train_loader):
             #current_time = time.time()
 
             imgs = Variable(imgs).to(device) # (shape: (batch_size, 3, img_h, img_w))
             label_imgs = Variable(label_imgs.type(torch.LongTensor)).to(device) # (shape: (batch_size, img_h, img_w))
+            label_boundarys = Variable(label_boundarys.type(torch.LongTensor)).to(device) # (shape: (batch_size, img_h, img_w))
 
-            outputs = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
+            output_mask, output_boundary = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
 
             # compute the loss:
             # print(outputs.shape)
             # print(label_imgs.shape)
-            loss = loss_fn(outputs, label_imgs)
+            loss_mask = loss_fn(output_mask, label_imgs)
+            # loss_mask_value = loss_mask.data.cpu().numpy()
+
+            loss_boundary = loss_fn(output_boundary, label_boundarys)
+            # loss_boundary_value = loss_boundary.data.cpu().numpy()
+            loss = loss_mask + loss_boundary
             loss_value = loss.data.cpu().numpy()
             batch_losses.append(loss_value)
 
@@ -156,15 +168,23 @@ if __name__ == "__main__":
         ############################################################################
         network.eval() # (set in evaluation mode, this affects BatchNorm and dropout)
         batch_losses = []
-        for step, (imgs, label_imgs, _) in enumerate(val_loader):
+        for step, (imgs, label_imgs, label_boundarys, _) in enumerate(val_loader):
             with torch.no_grad(): # (corresponds to setting volatile=True in all variables, this is done during inference to reduce memory consumption)
                 imgs = Variable(imgs).to(device) # (shape: (batch_size, 3, img_h, img_w))
                 label_imgs = Variable(label_imgs.type(torch.LongTensor)).to(device) # (shape: (batch_size, img_h, img_w))
+                label_boundarys = Variable(label_boundarys.type(torch.LongTensor)).to(device) # (shape: (batch_size, img_h, img_w))
 
-                outputs = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
+                output_mask, output_boundary = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
 
                 # compute the loss:
-                loss = loss_fn(outputs, label_imgs)
+                # print(outputs.shape)
+                # print(label_imgs.shape)
+                loss_mask = loss_fn(output_mask, label_imgs)
+                # loss_mask_value = loss_mask.data.cpu().numpy()
+
+                loss_boundary = loss_fn(output_boundary, label_boundarys)
+                # loss_boundary_value = loss_boundary.data.cpu().numpy()
+                loss = loss_mask + loss_boundary
                 loss_value = loss.data.cpu().numpy()
                 batch_losses.append(loss_value)
 

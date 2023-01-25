@@ -9,9 +9,10 @@ import os
 
 
 class DatasetTrain(torch.utils.data.Dataset):
-    def __init__(self, data_path, mask_path):
+    def __init__(self, data_path, mask_path, boundary_path):
         self.img_dir = data_path
         self.label_dir = mask_path
+        self.boundary_dir = boundary_path
 
         self.img_h = 1024
         self.img_w = 1024
@@ -30,10 +31,14 @@ class DatasetTrain(torch.utils.data.Dataset):
             img_path = train_img_dir_path + file_name
 
             label_img_path = self.label_dir + file_name.split(".")[0]+".png"
+            file_names = (file_name.split(".")[0]+".png").split("_")
+            file_names[3] = file_names[3]+"_noBoundary"
+            boundary_img_path = self.boundary_dir + "_".join(file_names)
 
             example = {}
             example["img_path"] = img_path
             example["label_img_path"] = label_img_path
+            example["boundary_img_path"] = boundary_img_path
             self.examples.append(example)
 
         self.num_examples = len(self.examples)
@@ -50,6 +55,9 @@ class DatasetTrain(torch.utils.data.Dataset):
 
         label_img_path = example["label_img_path"]
         label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
+
+        boundary_img_path = example["boundary_img_path"]
+        boundary_img = cv2.imread(boundary_img_path, -1) # (shape: (1024, 2048))
         # resize label_img without interpolation (want the resulting image to
         # still only contain pixel values corresponding to an object class):
         # label_img = cv2.resize(label_img, (self.new_img_w, self.new_img_h),
@@ -60,6 +68,7 @@ class DatasetTrain(torch.utils.data.Dataset):
         if flip == 1:
             img = cv2.flip(img, 1)
             label_img = cv2.flip(label_img, 1)
+            boundary_img = cv2.flip(boundary_img, 1)
 
         ########################################################################
         # randomly scale the img and the label:
@@ -101,6 +110,7 @@ class DatasetTrain(torch.utils.data.Dataset):
 
         img = img[start_y:end_y, start_x:end_x] # (shape: (256, 256, 3))
         label_img = label_img[start_y:end_y, start_x:end_x] # (shape: (256, 256))
+        boundary_img = boundary_img[start_y:end_y, start_x:end_x] # (shape: (256, 256))
         ########################################################################
 
         # # # # # # # # debug visualization START
@@ -124,16 +134,18 @@ class DatasetTrain(torch.utils.data.Dataset):
         # convert numpy -> torch:
         img = torch.from_numpy(img) # (shape: (3, 256, 256))
         label_img = torch.from_numpy(label_img) # (shape: (256, 256))
+        boundary_img = torch.from_numpy(boundary_img) # (shape: (256, 256))
 
-        return (img, label_img)
+        return (img, label_img, boundary_img)
 
     def __len__(self):
         return self.num_examples
 
 class DatasetVal(torch.utils.data.Dataset):
-    def __init__(self, data_path, mask_path):
+    def __init__(self, data_path, mask_path, boundary_path):
         self.img_dir = data_path
         self.label_dir = mask_path
+        self.boundary_dir = boundary_path
 
         self.img_h = 1024
         self.img_w = 1024
@@ -151,11 +163,15 @@ class DatasetVal(torch.utils.data.Dataset):
             img_path = val_img_dir_path + file_name
 
             label_img_path = self.label_dir + file_name.split(".")[0]+".png"
-            label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
+            file_names = (file_name.split(".")[0]+".png").split("_")
+            file_names[3] = file_names[3]+"_noBoundary"
+            boundary_img_path = self.boundary_dir + "_".join(file_names)
+            # label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
 
             example = {}
             example["img_path"] = img_path
             example["label_img_path"] = label_img_path
+            example["boundary_img_path"] = boundary_img_path
             self.examples.append(example)
 
         self.num_examples = len(self.examples)
@@ -173,6 +189,9 @@ class DatasetVal(torch.utils.data.Dataset):
 
         label_img_path = example["label_img_path"]
         label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
+
+        boundary_img_path = example["boundary_img_path"]
+        boundary_img = cv2.imread(boundary_img_path, -1) # (shape: (1024, 2048))
         # resize label_img without interpolation (want the resulting image to
         # still only contain pixel values corresponding to an object class):
         # label_img = cv2.resize(label_img, (self.new_img_w, self.new_img_h),
@@ -196,17 +215,19 @@ class DatasetVal(torch.utils.data.Dataset):
         # convert numpy -> torch:
         img = torch.from_numpy(img) # (shape: (3, 512, 1024))
         label_img = torch.from_numpy(label_img) # (shape: (512, 1024))
+        boundary_img = torch.from_numpy(boundary_img) # (shape: (256, 256))
 
-        return (img, label_img, file_name)
+        return (img, label_img, boundary_img, file_name)
 
     def __len__(self):
         return self.num_examples
 
     
 class DatasetTest(torch.utils.data.Dataset):
-    def __init__(self, data_path, mask_path):
+    def __init__(self, data_path, mask_path, boundary_path):
         self.img_dir = data_path
         self.label_dir = mask_path
+        self.boundary_dir = boundary_path
 
         self.examples = []
 
@@ -216,9 +237,13 @@ class DatasetTest(torch.utils.data.Dataset):
         for file_name in file_names:
             img_path = test_img_dir_path + file_name
             label_img_path = self.label_dir + file_name.split(".")[0]+".png"
+            file_names = (file_name.split(".")[0]+".png").split("_")
+            file_names[3] = file_names[3]+"_noBoundary"
+            boundary_img_path = self.boundary_dir + "_".join(file_names)
             example = {}
             example["img_path"] = img_path
             example["label_img_path"] = label_img_path
+            example["boundary_img_path"] = boundary_img_path
             self.examples.append(example)
 
         self.num_examples = len(self.examples)
@@ -233,6 +258,8 @@ class DatasetTest(torch.utils.data.Dataset):
         label_img_path = example["label_img_path"]
         label_img = cv2.imread(label_img_path, -1) # (shape: (1024, 2048))
         
+        boundary_img_path = example["boundary_img_path"]
+        boundary_img = cv2.imread(boundary_img_path, -1) # (shape: (1024, 2048))
         # if max(img.shape)>1024:
         #     scale = max(img.shape)/1024
         #     img = cv2.resize(img, (int(img.shape[0]/scale), int(img.shape[1]/scale)),
@@ -250,8 +277,9 @@ class DatasetTest(torch.utils.data.Dataset):
         # convert numpy -> torch:
         img = torch.from_numpy(img) # (shape: (3, 512, 1024))
         label_img = torch.from_numpy(label_img) # (shape: (512, 1024))
+        boundary_img = torch.from_numpy(boundary_img) # (shape: (256, 256))
 
-        return (img, label_img, file_name)
+        return (img, label_img, boundary_img, file_name)
 
     def __len__(self):
         return self.num_examples

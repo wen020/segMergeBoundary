@@ -49,15 +49,19 @@ class DeepLabV3Boundary(nn.Module):
 
         feature_map = self.resnet(x) # (shape: (batch_size, 512, h/16, w/16)) (assuming self.resnet is ResNet18_OS16 or ResNet34_OS16. If self.resnet is ResNet18_OS8 or ResNet34_OS8, it will be (batch_size, 512, h/8, w/8). If self.resnet is ResNet50-152, it will be (batch_size, 4*512, h/16, w/16))
 
-        output = self.aspp(feature_map) # (shape: (batch_size, num_classes, h/16, w/16))
+        f1 = self.aspp(feature_map) # (shape: (batch_size, num_classes, h/16, w/16))
 
         # output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
-        output = self.decoder4(output)
+        output = self.decoder4(f1)
         output = self.decoder3(output)
         output = self.decoder2(output)
         output = self.decoder1(output)
 
-        return output
+        output1 = self.decoder41(f1)
+        output1 = self.decoder31(output1)
+        output1 = self.decoder21(output1)
+        output1 = self.decoder11(output1)
+        return output, output1
 
     def create_model_dirs(self):
         self.logs_dir = self.project_dir + "/training_logs"
