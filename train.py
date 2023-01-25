@@ -44,7 +44,7 @@ if __name__ == "__main__":
         "--batch_size",
         type=int,
         help="batch size",
-        default="16")
+        default="8")
     
     opt = parser.parse_args()
     mode = opt.mode
