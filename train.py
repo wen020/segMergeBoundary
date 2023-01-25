@@ -43,17 +43,17 @@ if __name__ == "__main__":
         "--batch_size",
         type=int,
         help="batch size",
-        default="32")
+        default="16")
     
     opt = parser.parse_args()
     mode = opt.mode
     batch_size = opt.batch_size
     # NOTE! NOTE! change this to not overwrite all log data when you train the model:
-    model_id = "_1"
+    model_id = "_2"
 
     num_epochs = 1000
     
-    learning_rate = 0.0001
+    learning_rate = 0.00001
 
     device = None
     network = None
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         device = "cuda:0"
         network = DeepLabV3MutilDecoder(mode+model_id, project_dir="./").to(device)
     elif mode == "DeepLabV3Boundary":
-        device = "cuda:0"
+        device = "cuda:1"
         network = DeepLabV3Boundary(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
