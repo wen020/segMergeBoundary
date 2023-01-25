@@ -8,6 +8,7 @@ from datasets import DatasetTrain, DatasetVal # (this needs to be imported befor
 from model.deeplabv3 import DeepLabV3
 from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
 from model.deeplabv3Boundary import DeepLabV3Boundary
+from model.deeplabv3AddBoundary import DeepLabV3AddBoundary
 from model.unet_model import UNet
 
 from utils.utils import add_weight_decay, num_classes
@@ -37,7 +38,7 @@ if __name__ == "__main__":
         "--mode",
         type=str,
         help="model change",
-        default="DeepLabV3Boundary")
+        default="DeepLabV3AddBoundary")
     
     parser.add_argument(
         "--batch_size",
@@ -67,8 +68,11 @@ if __name__ == "__main__":
         device = "cuda:0"
         network = DeepLabV3MutilDecoder(mode+model_id, project_dir="./").to(device)
     elif mode == "DeepLabV3Boundary":
-        device = "cuda:1"
+        device = "cuda:0"
         network = DeepLabV3Boundary(mode+model_id, project_dir="./").to(device)
+    elif mode == "DeepLabV3AddBoundary":
+        device = "cuda:1"
+        network = DeepLabV3AddBoundary(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
         exit()

@@ -14,9 +14,9 @@ nonlinearity = partial(F.relu, inplace=True)
 from model.resnet import ResNet18_OS16, ResNet34_OS16, ResNet50_OS16, ResNet101_OS16, ResNet152_OS16, ResNet18_OS8, ResNet34_OS8
 from model.aspp import ASPP, ASPP_Bottleneck
 
-class DeepLabV3Boundary(nn.Module):
+class DeepLabV3AddBoundary(nn.Module):
     def __init__(self, model_id, project_dir):
-        super(DeepLabV3Boundary, self).__init__()
+        super(DeepLabV3AddBoundary, self).__init__()
 
         self.num_classes = 6
         self.boundary_classes = 2
