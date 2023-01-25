@@ -16,7 +16,7 @@ from model.aspp import ASPP, ASPP_Bottleneck
 
 class DeepLabV3MutilDecoder(nn.Module):
     def __init__(self, model_id, project_dir):
-        super(DeepLabV3, self).__init__()
+        super(DeepLabV3MutilDecoder, self).__init__()
 
         self.num_classes = 6
 
