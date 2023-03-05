@@ -43,6 +43,12 @@ if mode == "Unet":
 if mode == "DeepLabV3MutilDecoder":
     network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
     network.load_state_dict(torch.load("./training_logs/model_DeepLabV3MutilDecoder_1/checkpoints/model__1_epoch_956.pth"))
+if mode == "DeepLabV3Boundary":
+    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3Boundary_1/checkpoints/model__1_epoch_956.pth"))
+if mode == "DeepLabV3AddBoundary":
+    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3AddBoundary_1/checkpoints/model__1_epoch_956.pth"))
 
 val_dataset = DatasetTest(data_path="./data/test/images/",
                          mask_path="./data/test/masks/")
@@ -65,15 +71,16 @@ loss_fn = nn.CrossEntropyLoss()
 metrics = Evaluator(num_class=num_classes)
 network.eval() # (set in evaluation mode, this affects BatchNorm and dropout)
 batch_losses = []
-for step, (imgs, label_imgs, img_names) in enumerate(val_loader):
+for step, (imgs, label_imgs, label_boundarys, img_names) in enumerate(val_loader):
     with torch.no_grad(): # (corresponds to setting volatile=True in all variables, this is done during inference to reduce memory consumption)
         imgs = Variable(imgs).cuda() # (shape: (batch_size, 3, img_h, img_w))
         label_imgs = Variable(label_imgs.type(torch.LongTensor)).cuda() # (shape: (batch_size, img_h, img_w))
+        label_boundarys = Variable(label_boundarys.type(torch.LongTensor)).cuda() # (shape: (batch_size, img_h, img_w))
 
-        outputs = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
+        output_mask, output_boundary = network(imgs) # (shape: (batch_size, num_classes, img_h, img_w))
 
         # compute the loss:
-        loss = loss_fn(outputs, label_imgs)
+        loss = loss_fn(output_mask, label_imgs)
         loss_value = loss.data.cpu().numpy()
         batch_losses.append(loss_value)
 
