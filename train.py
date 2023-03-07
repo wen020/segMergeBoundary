@@ -9,6 +9,7 @@ from model.deeplabv3 import DeepLabV3
 from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
 from model.deeplabv3Boundary import DeepLabV3Boundary
 from model.deeplabv3AddBoundary import DeepLabV3AddBoundary
+from model.deeplabv3MergeBoundary import DeeplabV3MergeBoundary
 from model.unet_model import UNet
 
 from utils.utils import add_weight_decay, num_classes
@@ -73,6 +74,9 @@ if __name__ == "__main__":
     elif mode == "DeepLabV3AddBoundary":
         device = "cuda:1"
         network = DeepLabV3AddBoundary(mode+model_id, project_dir="./").to(device)
+    elif mode == "DeeplabV3MergeBoundary":
+        device = "cuda:1"
+        network = DeeplabV3MergeBoundary(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
         exit()

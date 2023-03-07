@@ -49,6 +49,9 @@ if mode == "DeepLabV3Boundary":
 if mode == "DeepLabV3AddBoundary":
     network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
     network.load_state_dict(torch.load("./training_logs/model_DeepLabV3AddBoundary_1/checkpoints/model__1_epoch_956.pth"))
+if mode == "DeeplabV3MergeBoundary":
+    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeeplabV3MergeBoundary_1/checkpoints/model__1_epoch_956.pth"))
 
 val_dataset = DatasetTest(data_path="./data/test/images/",
                          mask_path="./data/test/masks/")
