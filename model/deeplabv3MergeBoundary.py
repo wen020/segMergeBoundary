@@ -54,23 +54,23 @@ class DeeplabV3MergeBoundary(nn.Module):
 
         # output = F.upsample(output, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
         output1 = self.decoder41(f1)
-        output1_1 = F.upsample(output1, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
+        # output1_1 = F.upsample(output1, size=(h, w), mode="bilinear") # (shape: (batch_size, num_classes, h, w))
         output2 = self.decoder31(output1)
-        output2_1 = F.upsample(output2, size=(h, w), mode="bilinear")
+        # output2_1 = F.upsample(output2, size=(h, w), mode="bilinear")
         output3 = self.decoder21(output2)
-        output3_1 = F.upsample(output3, size=(h, w), mode="bilinear")
+        # output3_1 = F.upsample(output3, size=(h, w), mode="bilinear")
         output4 = self.decoder11(output3)
         
         # mask
-        outpu5 = self.decoder4(f1)
-        output5_1 = F.upsample(outpu5, size=(h, w), mode="bilinear")
-        output6 = self.decoder3(outpu5)
-        output6_1 = F.upsample(output6, size=(h, w), mode="bilinear")
+        output5 = self.decoder4(f1)
+        output5_1 = F.upsample(torch.add(output5, 1, output1), size=(h, w), mode="bilinear")
+        output6 = self.decoder3(output5)
+        output6_1 = F.upsample(torch.add(output6, 1, output2), size=(h, w), mode="bilinear")
         output7 = self.decoder2(output6)
-        output7_1 = F.upsample(output7, size=(h, w), mode="bilinear")
+        output7_1 = F.upsample(torch.add(output7, 1, output3), size=(h, w), mode="bilinear")
         output8 = self.decoder1(output7)
 
-        output8 = self.merge([output1_1+output5_1, output2_1+output6_1, output3_1+output7_1], output8)
+        output8 = self.merge([output5_1, output6_1, output7_1], output8)
         return output8, output4
 
     def create_model_dirs(self):
