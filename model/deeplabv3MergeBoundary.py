@@ -34,7 +34,7 @@ class DeeplabV3MergeBoundary(nn.Module):
         self.decoder3 = DecoderBlock(512, 256)
         self.decoder2 = DecoderBlock(256, 128)
         self.decoder1 = DecoderBlock(128, self.num_classes)
-        self.merge = MergeBlock(3, self.num_classes)
+        self.merge = MergeBlock([512, 256, 128], self.num_classes)
 
         self.decoder41 = DecoderBlock(1024, 512)
         self.decoder31 = DecoderBlock(512, 256)
@@ -86,11 +86,11 @@ class DeeplabV3MergeBoundary(nn.Module):
 
 class MergeBlock(nn.Module):
     def __init__(self, mask_channels, n_filters):
-        super(DecoderBlock, self).__init__()
+        super(MergeBlock, self).__init__()
         self.conv0 = nn.Conv2d(mask_channels[0], n_filters, 1)
         self.conv1 = nn.Conv2d(mask_channels[1], n_filters, 1)
         self.conv2 = nn.Conv2d(mask_channels[2], n_filters, 1)
-        self.weight = torch.nn.Parameter(torch.Tensor(np.ones([1,mask_channels])))
+        self.weight = torch.nn.Parameter(torch.Tensor(np.ones([1,len(mask_channels)])))
 
     def forward(self, masks, input):
         self.mask0 = self.conv0(masks[0])
