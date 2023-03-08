@@ -39,7 +39,7 @@ if __name__ == "__main__":
         "--mode",
         type=str,
         help="model change",
-        default="DeepLabV3AddBoundary")
+        default="DeeplabV3MergeBoundary")
     
     parser.add_argument(
         "--batch_size",
@@ -72,10 +72,10 @@ if __name__ == "__main__":
         device = "cuda:0"
         network = DeepLabV3Boundary(mode+model_id, project_dir="./").to(device)
     elif mode == "DeepLabV3AddBoundary":
-        device = "cuda:1"
+        device = "cuda:0"
         network = DeepLabV3AddBoundary(mode+model_id, project_dir="./").to(device)
     elif mode == "DeeplabV3MergeBoundary":
-        device = "cuda:1"
+        device = "cuda:0"
         network = DeeplabV3MergeBoundary(mode+model_id, project_dir="./").to(device)
     else:
         print("mode input error!")
