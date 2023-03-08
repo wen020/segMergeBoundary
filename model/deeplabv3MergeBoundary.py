@@ -64,11 +64,11 @@ class DeeplabV3MergeBoundary(nn.Module):
         # mask
         outpu5 = self.decoder4(f1)
         output5_1 = F.upsample(outpu5, size=(h, w), mode="bilinear")
-        output6 = self.decoder3(torch.add(outpu5, 1, output1))
+        output6 = self.decoder3(outpu5)
         output6_1 = F.upsample(output6, size=(h, w), mode="bilinear")
-        output7 = self.decoder2(torch.add(output6, 1, output2))
+        output7 = self.decoder2(output6)
         output7_1 = F.upsample(output7, size=(h, w), mode="bilinear")
-        output8 = self.decoder1(torch.add(output7, 1, output3))
+        output8 = self.decoder1(output7)
 
         output8 = self.merge([output1_1+output5_1, output2_1+output6_1, output3_1+output7_1], output8)
         return output8, output4
@@ -96,7 +96,7 @@ class MergeBlock(nn.Module):
         self.mask0 = self.conv0(masks[0])
         self.mask1 = self.conv1(masks[1])
         self.mask2 = self.conv2(masks[2])
-        self.mask = self.mask0*self.weight[0]+self.mask1*self.weight[1]+self.mask2*self.weight[2]
+        self.mask = self.mask0*self.weight[0][0]+self.mask1*self.weight[0][1]+self.mask2*self.weight[0][2]
         return input.mul(self.mask)
 
 
