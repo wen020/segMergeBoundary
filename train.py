@@ -51,7 +51,7 @@ if __name__ == "__main__":
     mode = opt.mode
     batch_size = opt.batch_size
     # NOTE! NOTE! change this to not overwrite all log data when you train the model:
-    model_id = "_2"
+    model_id = "_1"
 
     num_epochs = 1000
     
