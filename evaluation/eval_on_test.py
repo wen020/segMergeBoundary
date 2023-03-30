@@ -10,6 +10,8 @@ from datasets import DatasetTest # (this needs to be imported before torch, beca
 # sys.path.append("/root/deeplabv3/model")
 from model.deeplabv3 import DeepLabV3
 from model.deeplabv3MutilDecoder import DeepLabV3MutilDecoder
+from model.deeplabv3MergeBoundary import DeeplabV3MergeBoundary
+from model.deeplabv3AddBoundary import DeepLabV3AddBoundary
 from model.unet_model import UNet
 
 # sys.path.append("/root/deeplabv3/utils")
@@ -33,7 +35,7 @@ import cv2
 batch_size = 1
 num_classes = 6
 CLASSES = ('ImSurf', 'Building', 'LowVeg', 'Tree', 'Car', 'Clutter')
-mode = "Unet"
+mode = "DeepLabV3AddBoundary"
 if mode == "DeepLabV3":
     network = DeepLabV3(mode+"_eval_test", project_dir="./").cuda()
     network.load_state_dict(torch.load("./training_logs/model_DeepLabV3_1/checkpoints/model__1_epoch_956.pth"))
@@ -47,14 +49,15 @@ if mode == "DeepLabV3Boundary":
     network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
     network.load_state_dict(torch.load("./training_logs/model_DeepLabV3Boundary_1/checkpoints/model__1_epoch_956.pth"))
 if mode == "DeepLabV3AddBoundary":
-    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
-    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3AddBoundary_1/checkpoints/model__1_epoch_956.pth"))
+    network = DeepLabV3AddBoundary(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeepLabV3AddBoundary_1/checkpoints/model__1_epoch_995.pth"))
 if mode == "DeeplabV3MergeBoundary":
-    network = DeepLabV3MutilDecoder(mode+"_eval_test", project_dir="./").cuda()
-    network.load_state_dict(torch.load("./training_logs/model_DeeplabV3MergeBoundary_1/checkpoints/model__1_epoch_956.pth"))
+    network = DeeplabV3MergeBoundary(mode+"_eval_test", project_dir="./").cuda()
+    network.load_state_dict(torch.load("./training_logs/model_DeeplabV3MergeBoundary_1/checkpoints/model__1_epoch_262.pth"))
 
-val_dataset = DatasetTest(data_path="./data/test/images/",
-                         mask_path="./data/test/masks/")
+val_dataset = DatasetTest(data_path="./data/val/images/",
+                         mask_path="./data/val/masks/",
+                         boundary_path="./data/val/boundarys/")
 
 num_val_batches = int(len(val_dataset)/batch_size)
 print ("num_val_batches:", num_val_batches)
@@ -90,7 +93,7 @@ for step, (imgs, label_imgs, label_boundarys, img_names) in enumerate(val_loader
         ########################################################################
         # save data for visualization:
         ########################################################################
-        outputs = outputs.data.cpu().numpy() # (shape: (batch_size, num_classes, img_h, img_w))
+        outputs = output_mask.data.cpu().numpy() # (shape: (batch_size, num_classes, img_h, img_w))
         pred_label_imgs = np.argmax(outputs, axis=1) # (shape: (batch_size, img_h, img_w))
         pred_label_imgs = pred_label_imgs.astype(np.uint8)
         for i in range(pred_label_imgs.shape[0]):
